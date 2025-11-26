@@ -1,7 +1,13 @@
+import Board from "@/components/Board";
+import Navbar from "@/components/Navbar";
+import Sidebar from "@/components/Sidebar";
+
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center font-sans">
-      <h1>Hello World</h1>
+    <div className="h-screen max-w-[2560px] bg-green-200 flex flex-col mx-auto font-sans">
+      <div className="flex flex-1 overflow-auto">
+        <Board />
+      </div>
     </div>
   );
 }
