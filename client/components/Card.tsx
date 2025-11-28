@@ -1,20 +1,19 @@
 "use client";
 
-import { useSortable } from "@dnd-kit/sortable";
+import { Card as CardType } from "@/types/board";
+import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
-import React from "react";
 
 interface Props {
-  children: React.ReactNode;
-  id: string;
+  item: CardType;
 }
 
-export default function Card({ children, id }: Props) {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
-
+export default function Card({ item }: Props) {
+  const { attributes, listeners, setNodeRef, transform } = useDraggable({
+    id: item.id,
+  });
   const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
+    transform: CSS.Translate.toString(transform),
   };
 
   return (
@@ -22,10 +21,10 @@ export default function Card({ children, id }: Props) {
       ref={setNodeRef}
       style={style}
       className="p-4 my-2 bg-white border border-gray-300 rounded-lg cursor-grab active:cursor-grabbing"
-      {...attributes}
       {...listeners}
+      {...attributes}
     >
-      {children}
+      {item.title}
     </div>
   );
 }
