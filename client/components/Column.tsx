@@ -3,6 +3,7 @@
 import Card from "./Card";
 import { Card as CardType } from "@/types/board";
 import { useDroppable } from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 
 interface Props {
   items: CardType[];
@@ -16,12 +17,18 @@ export default function Column({ items, id, title }: Props) {
     color: isOver ? "green" : undefined,
   };
 
+  // const sorted = items.sort((a, b) => a.index - b.index);
+
   return (
-    <div ref={setNodeRef} className="flex-1 p-2 bg-gray-100 rounded-lg mx-2 max-w-sm min-w-2xs" style={style}>
+    <div className="mx-2 flex max-w-sm min-w-2xs flex-1 flex-col rounded-lg bg-gray-100 p-2" style={style}>
       <h3 className="p-2">{title}</h3>
-      {items.map((item: CardType) => (
-        <Card key={item.id} item={item} />
-      ))}
+      <div ref={setNodeRef} className="flex-1">
+        <SortableContext items={items} strategy={verticalListSortingStrategy}>
+          {items.map((item: CardType) => (
+            <Card key={item.id} item={item} />
+          ))}
+        </SortableContext>
+      </div>
     </div>
   );
 }
