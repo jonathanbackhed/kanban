@@ -1,12 +1,12 @@
-import Board from "@/components/Board";
-import Navbar from "@/components/Navbar";
-import Sidebar from "@/components/menu/Sidebar";
+import Board from "@/components/board/Board";
+import Navbar from "@/components/layout/Navbar";
+import Sidebar from "@/components/layout/Sidebar";
 
 export default function Home() {
   return (
-    <div className="h-screen max-w-[2560px] bg-green-200 flex flex-col mx-auto font-sans">
+    <div className="mx-auto flex h-screen max-w-[2560px] flex-col bg-green-200 font-sans">
       <Navbar />
-      <div className="flex flex-row flex-1">
+      <div className="flex flex-1 flex-row">
         <Sidebar />
         <div className="flex flex-1 overflow-auto">
           <Board />

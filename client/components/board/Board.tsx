@@ -17,6 +17,7 @@ import { Card as CardType } from "@/types/board";
 import Card from "./Card";
 import { arrayMove } from "@dnd-kit/sortable";
 
+// ! REMOVE IN FUTURE
 const data = {
   todo: [
     { id: "1", title: "Task 1", index: 0 },
@@ -114,6 +115,8 @@ export default function Board() {
       const overIndex = prev[currentContainer].findIndex((item) => item.id === (over.id as string));
 
       if (currentIndex === overIndex) return prev;
+
+      // TODO: Modify currentIndex and overIndex and apply correct index to their objects
 
       return {
         ...prev,

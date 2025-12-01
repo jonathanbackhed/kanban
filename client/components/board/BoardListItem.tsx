@@ -10,8 +10,9 @@ export default function BoardListItem({ title, active }: Props) {
     <li>
       <button
         className={
-          "hover:bg-black/10 hover:cursor-pointer rounded-lg px-2 py-1 w-full text-start " + (active && "font-bold")
-        }>
+          "w-full rounded-lg px-2 py-1 text-start hover:cursor-pointer hover:bg-black/10 " + (active && "font-bold")
+        }
+      >
         {title}
       </button>
     </li>
