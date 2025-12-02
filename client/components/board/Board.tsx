@@ -18,8 +18,13 @@ import Card from "./Card";
 import { arrayMove } from "@dnd-kit/sortable";
 import BoardControls from "./BoardControls";
 
+type Data = {
+  title: string;
+  items: CardType[];
+};
+
 type ItemsState = {
-  [key: string]: CardType[];
+  [key: string]: Data;
 };
 
 interface Props {
@@ -36,14 +41,14 @@ export default function Board({ data }: Props) {
 
   const findContainer = (id: string) => {
     if (id in items) return id;
-    return Object.keys(items).find((key) => items[key].some((card) => card.id === id));
+    return Object.keys(items).find((key) => items[key].items.some((card) => card.id === id));
   };
 
   const getItemById = (id: string) => {
     const currentContainer = findContainer(id);
     if (!currentContainer) return null;
 
-    return items[currentContainer].find((card) => card.id === id);
+    return items[currentContainer].items.find((card) => card.id === id);
   };
 
   const getItemIndex = (id: string) => {
@@ -71,8 +76,14 @@ export default function Board({ data }: Props) {
 
       return {
         ...prev,
-        [currentContainer]: prev[currentContainer].filter((item) => item.id !== active.id),
-        [overContainer]: [...prev[overContainer], item],
+        [currentContainer]: {
+          ...prev[currentContainer],
+          items: prev[currentContainer].items.filter((item) => item.id !== active.id),
+        },
+        [overContainer]: {
+          ...prev[overContainer],
+          items: [...prev[overContainer].items, item],
+        },
       };
     });
   }
@@ -88,8 +99,8 @@ export default function Board({ data }: Props) {
 
     setActiveId(null);
     setItems((prev) => {
-      const currentIndex = prev[currentContainer].findIndex((item) => item.id === (active.id as string));
-      const overIndex = prev[currentContainer].findIndex((item) => item.id === (over.id as string));
+      const currentIndex = prev[currentContainer].items.findIndex((item) => item.id === (active.id as string));
+      const overIndex = prev[currentContainer].items.findIndex((item) => item.id === (over.id as string));
 
       if (currentIndex === overIndex) return prev;
 
@@ -97,7 +108,10 @@ export default function Board({ data }: Props) {
 
       return {
         ...prev,
-        [currentContainer]: arrayMove(prev[currentContainer], currentIndex, overIndex),
+        [currentContainer]: {
+          ...prev[currentContainer],
+          items: arrayMove(prev[currentContainer].items, currentIndex, overIndex),
+        },
       };
     });
   }
@@ -113,9 +127,9 @@ export default function Board({ data }: Props) {
           onDragOver={handleDragOver}
           autoScroll={false}
         >
-          <Column id="todo" title="ToDo" items={items["todo"]} />
-          <Column id="inprogress" title="In Progress" items={items["inprogress"]} />
-          <Column id="done" title="Done" items={items["done"]} />
+          {Object.entries(items).map(([key, value]: any) => (
+            <Column key={key} id={key} title={value.title} items={items[key].items} />
+          ))}
           <DragOverlay>{activeId ? <Card item={getItemById(activeId)} /> : null}</DragOverlay>
         </DndContext>
       </div>
