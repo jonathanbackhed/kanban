@@ -20,7 +20,7 @@ export default function Column({ items, id, title }: Props) {
   // const sorted = items.sort((a, b) => a.index - b.index);
 
   return (
-    <div className="mx-2 flex max-w-sm min-w-2xs flex-1 flex-col rounded-lg bg-gray-100 p-2" style={style}>
+    <div className="flex max-w-sm min-w-2xs flex-1 flex-col rounded-lg bg-neutral-100 p-2" style={style}>
       <h3 className="p-2">{title}</h3>
       <div ref={setNodeRef} className="flex-1">
         <SortableContext items={items} strategy={verticalListSortingStrategy}>

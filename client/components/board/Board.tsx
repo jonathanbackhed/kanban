@@ -16,40 +16,17 @@ import Column from "./Column";
 import { Card as CardType } from "@/types/board";
 import Card from "./Card";
 import { arrayMove } from "@dnd-kit/sortable";
-
-// ! REMOVE IN FUTURE
-const data = {
-  todo: [
-    { id: "1", title: "Task 1", index: 0 },
-    { id: "2", title: "Task 2", text: "This is task 2!", index: 2 },
-    {
-      id: "3",
-      title: "Task 3",
-      text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-      index: 1,
-    },
-  ],
-  inprogress: [
-    {
-      id: "4",
-      title: "Task 4",
-      text: "Task 4444444444444444444444444444444444444444444444444444444444",
-      index: 0,
-    },
-    {
-      id: "5",
-      title: "Task 5",
-      index: 1,
-    },
-  ],
-  done: [{ id: "6", title: "Task 6", text: "Task 6666666", index: 0 }],
-};
+import BoardControls from "./BoardControls";
 
 type ItemsState = {
   [key: string]: CardType[];
 };
 
-export default function Board() {
+interface Props {
+  data: ItemsState;
+}
+
+export default function Board({ data }: Props) {
   const [items, setItems] = useState<ItemsState>(data);
   const [activeId, setActiveId] = useState<string | null>(null);
 
@@ -126,19 +103,22 @@ export default function Board() {
   }
 
   return (
-    <div className="flex flex-1 flex-row overflow-auto bg-gray-400 p-4">
-      <DndContext
-        sensors={sensors}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-        onDragOver={handleDragOver}
-        autoScroll={false}
-      >
-        <Column id="todo" title="ToDo" items={items["todo"]} />
-        <Column id="inprogress" title="In Progress" items={items["inprogress"]} />
-        <Column id="done" title="Done" items={items["done"]} />
-        <DragOverlay>{activeId ? <Card item={getItemById(activeId)} /> : null}</DragOverlay>
-      </DndContext>
+    <div className="flex flex-1 flex-col overflow-auto p-4">
+      <BoardControls />
+      <div className="flex flex-1 space-x-2">
+        <DndContext
+          sensors={sensors}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          onDragOver={handleDragOver}
+          autoScroll={false}
+        >
+          <Column id="todo" title="ToDo" items={items["todo"]} />
+          <Column id="inprogress" title="In Progress" items={items["inprogress"]} />
+          <Column id="done" title="Done" items={items["done"]} />
+          <DragOverlay>{activeId ? <Card item={getItemById(activeId)} /> : null}</DragOverlay>
+        </DndContext>
+      </div>
     </div>
   );
 }
