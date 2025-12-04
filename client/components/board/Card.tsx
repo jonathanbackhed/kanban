@@ -1,11 +1,11 @@
 "use client";
 
-import { Card as CardType } from "@/types/board";
+import { Task } from "@/types/board";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
 interface Props {
-  item: CardType | null | undefined;
+  item: Task | null | undefined;
 }
 
 export default function Card({ item }: Props) {

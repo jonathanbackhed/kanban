@@ -13,48 +13,39 @@ import {
   DragStartEvent,
 } from "@dnd-kit/core";
 import Column from "./Column";
-import { Card as CardType } from "@/types/board";
 import Card from "./Card";
 import { arrayMove } from "@dnd-kit/sortable";
 import BoardControls from "./BoardControls";
-
-type Data = {
-  title: string;
-  items: CardType[];
-};
-
-type ItemsState = {
-  [key: string]: Data;
-};
+import { Column as ColumnType, KanbanBoard } from "@/types/board";
 
 interface Props {
-  data: ItemsState;
+  data: KanbanBoard;
 }
 
 export default function Board({ data }: Props) {
-  const [items, setItems] = useState<ItemsState>(data);
+  const [board, setBoard] = useState<KanbanBoard>(data);
   const [activeId, setActiveId] = useState<string | null>(null);
 
   const pointerSensor = useSensor(PointerSensor);
   const touchSensor = useSensor(TouchSensor);
   const sensors = useSensors(pointerSensor, touchSensor);
 
-  const findContainer = (id: string) => {
-    if (id in items) return id;
-    return Object.keys(items).find((key) => items[key].items.some((card) => card.id === id));
+  const findColumnId = (id: string) => {
+    return board.data.find((col) => col.id === id || col.items.some((item) => item.id === id))?.id;
   };
 
   const getItemById = (id: string) => {
-    const currentContainer = findContainer(id);
-    if (!currentContainer) return null;
+    const colId = findColumnId(id);
+    if (!colId) return null;
 
-    return items[currentContainer].items.find((card) => card.id === id);
+    return board.data.find((c) => c.id === colId)?.items.find((i) => i.id === id);
+    // return items[currentContainer].items.find((card) => card.id === id);
   };
 
-  const getItemIndex = (id: string) => {
-    const currentContainer = findContainer(id);
-    console.log(items[currentContainer as string]);
-  };
+  // const getItemIndex = (id: string) => {
+  //   const currentContainer = findColumnId(id);
+  //   console.log(items[currentContainer as string]);
+  // };
 
   function handleDragStart(event: DragStartEvent) {
     const { active } = event;
@@ -65,25 +56,29 @@ export default function Board({ data }: Props) {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
-    const currentContainer = findContainer(active.id as string);
-    const overContainer = findContainer(over?.id as string);
+    const currentColumnId = findColumnId(active.id as string);
+    const overColumnId = findColumnId(over?.id as string);
 
-    if (!currentContainer || !overContainer || currentContainer === overContainer) return;
+    if (!currentColumnId || !overColumnId || currentColumnId === overColumnId) return;
 
-    setItems((prev) => {
+    setBoard((prev) => {
       const item = getItemById(active.id as string);
-      if (!item) return prev;
+      if (!item) {
+        console.error("GET ITEM FAILED");
+        return prev;
+      }
 
       return {
         ...prev,
-        [currentContainer]: {
-          ...prev[currentContainer],
-          items: prev[currentContainer].items.filter((item) => item.id !== active.id),
-        },
-        [overContainer]: {
-          ...prev[overContainer],
-          items: [...prev[overContainer].items, item],
-        },
+        data: prev.data.map((col) => {
+          if (col.id === currentColumnId) {
+            return { ...col, items: col.items.filter((i) => i.id !== active.id) };
+          }
+          if (col.id === overColumnId) {
+            return { ...col, items: [...col.items, item] };
+          }
+          return col;
+        }),
       };
     });
   }
@@ -92,33 +87,39 @@ export default function Board({ data }: Props) {
     const { active, over } = event;
     if (!over) return;
 
-    const currentContainer = findContainer(active.id as string);
-    const overContainer = findContainer(over.id as string);
+    const currentColumnId = findColumnId(active.id as string);
+    const overColId = findColumnId(over.id as string);
 
-    if (!currentContainer || !overContainer || currentContainer !== overContainer) return;
+    if (!currentColumnId || !overColId || currentColumnId !== overColId) return;
 
     setActiveId(null);
-    setItems((prev) => {
-      const currentIndex = prev[currentContainer].items.findIndex((item) => item.id === (active.id as string));
-      const overIndex = prev[currentContainer].items.findIndex((item) => item.id === (over.id as string));
+    setBoard((prev) => {
+      const currentIndex = prev.data
+        .find((c) => c.id === currentColumnId)
+        ?.items.findIndex((i) => i.id === (active.id as string));
+      const overIndex = prev.data
+        .find((c) => c.id === currentColumnId)
+        ?.items.findIndex((i) => i.id === (over.id as string));
 
-      if (currentIndex === overIndex) return prev;
+      if (currentIndex === undefined || overIndex === undefined || currentIndex === overIndex) return prev;
 
       // TODO: Modify currentIndex and overIndex and apply correct index to their objects
 
       return {
         ...prev,
-        [currentContainer]: {
-          ...prev[currentContainer],
-          items: arrayMove(prev[currentContainer].items, currentIndex, overIndex),
-        },
+        data: prev.data.map((col) => {
+          if (col.id === currentColumnId) {
+            return { ...col, items: arrayMove(col.items, currentIndex, overIndex) };
+          }
+          return col;
+        }),
       };
     });
   }
 
   return (
     <div className="flex flex-1 flex-col overflow-auto p-4">
-      <BoardControls />
+      <BoardControls setBoard={setBoard} />
       <div className="flex flex-1 space-x-2">
         <DndContext
           sensors={sensors}
@@ -127,8 +128,8 @@ export default function Board({ data }: Props) {
           onDragOver={handleDragOver}
           autoScroll={false}
         >
-          {Object.entries(items).map(([key, value]: any) => (
-            <Column key={key} id={key} title={value.title} items={items[key].items} />
+          {board.data.map((col: ColumnType) => (
+            <Column key={col.id} id={col.id} title={col.title} items={col.items} />
           ))}
           <DragOverlay>{activeId ? <Card item={getItemById(activeId)} /> : null}</DragOverlay>
         </DndContext>
