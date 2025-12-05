@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   DndContext,
   useSensor,
@@ -17,18 +17,23 @@ import Card from "./Card";
 import { arrayMove } from "@dnd-kit/sortable";
 import BoardControls from "./BoardControls";
 import { Column as ColumnType, KanbanBoard } from "@/types/board";
+import { setBoardLocalstorage } from "@/lib/utils";
 
 interface Props {
   data: KanbanBoard;
 }
 
 export default function Board({ data }: Props) {
-  const [board, setBoard] = useState<KanbanBoard>(data);
-  const [activeId, setActiveId] = useState<string | null>(null);
-
   const pointerSensor = useSensor(PointerSensor);
   const touchSensor = useSensor(TouchSensor);
   const sensors = useSensors(pointerSensor, touchSensor);
+
+  const [board, setBoard] = useState<KanbanBoard>(data);
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setBoardLocalstorage(board);
+  }, [board]);
 
   const findColumnId = (id: string) => {
     return board.data.find((col) => col.id === id || col.items.some((item) => item.id === id))?.id;
@@ -58,7 +63,6 @@ export default function Board({ data }: Props) {
     setBoard((prev) => {
       const item = getItemById(active.id as string);
       if (!item) {
-        console.error("GET ITEM FAILED");
         return prev;
       }
 
