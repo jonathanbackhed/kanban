@@ -1,6 +1,6 @@
 "use client";
 
-import { KanbanBoard } from "@/types/board";
+import { Column, KanbanBoard } from "@/types/board";
 import { Plus } from "lucide-react";
 import { SetStateAction } from "react";
 
@@ -9,7 +9,20 @@ interface Props {
 }
 
 export default function BoardControls({ setBoard }: Props) {
-  const createColumn = () => {};
+  const createColumn = () => {
+    const newCol: Column = {
+      id: crypto.randomUUID(),
+      title: "New Column",
+      items: [],
+    };
+
+    setBoard((prev) => {
+      return {
+        ...prev,
+        data: [newCol, ...prev.data],
+      };
+    });
+  };
 
   return (
     <div className="flex pb-2">

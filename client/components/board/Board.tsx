@@ -39,13 +39,7 @@ export default function Board({ data }: Props) {
     if (!colId) return null;
 
     return board.data.find((c) => c.id === colId)?.items.find((i) => i.id === id);
-    // return items[currentContainer].items.find((card) => card.id === id);
   };
-
-  // const getItemIndex = (id: string) => {
-  //   const currentContainer = findColumnId(id);
-  //   console.log(items[currentContainer as string]);
-  // };
 
   function handleDragStart(event: DragStartEvent) {
     const { active } = event;
